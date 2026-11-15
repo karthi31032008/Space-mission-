@@ -1,0 +1,964 @@
+import * as THREE from
+'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+// =====================================
+// SPACE MISSION - DARK GALAXY
+// =====================================
+
+// SCENE
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x020510);
+scene.fog = new THREE.Fog(0x020510, 60, 180);
+
+// CAMERA
+const camera = new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    300
+);
+
+// RENDERER
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+document.body.appendChild(renderer.domElement);
+
+// LIGHTING
+scene.add(new THREE.HemisphereLight(0x9acaff, 0x171025, 2));
+
+const mainLight = new THREE.DirectionalLight(0xffffff, 2);
+mainLight.position.set(10, 20, 10);
+scene.add(mainLight);
+
+// =====================================
+// ENVIRONMENT
+// =====================================
+
+// SPACE FLOOR
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(200, 200),
+    new THREE.MeshStandardMaterial({
+        color: 0x101b30,
+        roughness: 0.9
+    })
+);
+
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.05;
+scene.add(floor);
+
+// GRID
+const grid = new THREE.GridHelper(
+    200, 100, 0x17618c, 0x172844
+);
+
+scene.add(grid);
+
+// STARS
+const starGeometry = new THREE.BufferGeometry();
+const starPositions = [];
+
+for (let i = 0; i < 1200; i++) {
+    starPositions.push(
+        (Math.random() - 0.5) * 180,
+        Math.random() * 90,
+        (Math.random() - 0.5) * 180
+    );
+}
+
+starGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(starPositions, 3)
+);
+
+const stars = new THREE.Points(
+    starGeometry,
+    new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.18
+    })
+);
+
+scene.add(stars);
+
+// DISTANT PLANET
+const planet = new THREE.Mesh(
+    new THREE.SphereGeometry(9, 32, 32),
+    new THREE.MeshStandardMaterial({
+        color: 0x174a93,
+        roughness: 1
+    })
+);
+
+planet.position.set(-35, 15, -65);
+scene.add(planet);
+
+// NEBULA
+function createNebula(color, x, y, z, size) {
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const ctx = canvas.getContext('2d');
+
+    const gradient = ctx.createRadialGradient(
+        128, 128, 10,
+        128, 128, 128
+    );
+
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, 'transparent');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 256);
+
+    const texture = new THREE.CanvasTexture(canvas);
+
+    const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        })
+    );
+
+    sprite.position.set(x, y, z);
+    sprite.scale.set(size, size, 1);
+
+    scene.add(sprite);
+}
+
+createNebula('rgba(120,0,255,0.8)', -25, 15, -90, 90);
+createNebula('rgba(0,100,255,0.8)', 30, 20, -100, 100);
+createNebula('rgba(255,0,100,0.7)', 0, 30, -110, 80);
+
+// =====================================
+// ASTRONAUT
+// =====================================
+
+const player = new THREE.Group();
+scene.add(player);
+
+const suit = new THREE.MeshStandardMaterial({
+    color: 0xe5edf5
+});
+
+const blue = new THREE.MeshStandardMaterial({
+    color: 0x159bd5
+});
+
+const dark = new THREE.MeshStandardMaterial({
+    color: 0x18243a
+});
+
+const gold = new THREE.MeshStandardMaterial({
+    color: 0xffc928,
+    emissive: 0x332000
+});
+
+function part(parent, geometry, material, x, y, z) {
+
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.position.set(x, y, z);
+
+    parent.add(mesh);
+
+    return mesh;
+}
+
+// BODY
+part(
+    player,
+    new THREE.CapsuleGeometry(0.42, 0.8, 5, 10),
+    suit,
+    0, 1.15, 0
+);
+
+// HEAD
+part(
+    player,
+    new THREE.SphereGeometry(0.38, 16, 16),
+    suit,
+    0, 2.05, 0
+);
+
+// HELMET
+part(
+    player,
+    new THREE.SphereGeometry(0.29, 16, 16),
+    new THREE.MeshStandardMaterial({
+        color: 0x35bafa,
+        metalness: 0.6,
+        roughness: 0.15
+    }),
+    0, 2.08, -0.19
+);
+
+// BACKPACK
+part(
+    player,
+    new THREE.BoxGeometry(0.65, 0.85, 0.3),
+    blue,
+    0, 1.3, 0.38
+);
+
+// ARMS
+const arm1 = part(
+    player,
+    new THREE.CapsuleGeometry(0.14, 0.65, 4, 8),
+    suit,
+    -0.52, 1.35, 0
+);
+
+arm1.rotation.z = -0.2;
+
+const arm2 = part(
+    player,
+    new THREE.CapsuleGeometry(0.14, 0.65, 4, 8),
+    suit,
+    0.52, 1.35, 0
+);
+
+arm2.rotation.z = 0.2;
+
+// LEGS
+part(
+    player,
+    new THREE.CapsuleGeometry(0.17, 0.65, 5, 8),
+    dark,
+    -0.22, 0.42, 0
+);
+
+part(
+    player,
+    new THREE.CapsuleGeometry(0.17, 0.65, 5, 8),
+    dark,
+    0.22, 0.42, 0
+);
+
+// LASER GUN
+const gun = new THREE.Group();
+
+player.add(gun);
+
+gun.position.set(0.55, 1.35, -0.65);
+
+part(
+    gun,
+    new THREE.BoxGeometry(0.18, 0.18, 0.8),
+    dark,
+    0, 0, -0.15
+);
+
+part(
+    gun,
+    new THREE.BoxGeometry(0.12, 0.1, 0.25),
+    gold,
+    0, 0.1, -0.6
+);
+
+// =====================================
+// GAME VARIABLES
+// =====================================
+
+let health = 100;
+let score = 0;
+let kills = 0;
+
+let astronaut = 'Alex';
+let yaw = 0;
+
+let gameOver = false;
+let bossSpawned = false;
+let bossDefeated = false;
+
+let powerReady = true;
+let shield = false;
+let rapidFire = false;
+
+let gravityPulse = false;
+
+let projectiles = [];
+let enemies = [];
+let particles = [];
+
+let currentMission = 1;
+
+const keys = {};
+
+const missionNames = [
+    'Defeat enemy soldiers',
+    'Protect the satellite',
+    'Escape the black hole',
+    'Defeat the mini boss',
+    'Defeat the final boss'
+];
+
+// =====================================
+// HTML ELEMENTS
+// =====================================
+
+const healthUI = document.getElementById('health');
+const scoreUI = document.getElementById('score');
+const enemiesUI = document.getElementById('enemies');
+const heroUI = document.getElementById('hero');
+
+const messageUI = document.getElementById('message');
+
+const missionObjective =
+    document.getElementById('missionObjective');
+
+const missionProgress =
+    document.getElementById('missionProgress');
+
+// =====================================
+// ASTRONAUT SELECTION
+// =====================================
+
+const astronautPowers = {
+    Alex: 'Energy Shield',
+    Luna: 'Laser Boost',
+    Max: 'Health Repair',
+    Nova: 'Gravity Pulse'
+};
+
+function selectAstronaut(name) {
+
+    astronaut = name;
+
+    heroUI.textContent = name;
+
+    messageUI.textContent =
+        name + ' selected: ' + astronautPowers[name];
+}
+
+// =====================================
+// KEYBOARD CONTROLS
+// =====================================
+
+window.addEventListener('keydown', e => {
+
+    keys[e.code] = true;
+
+    if (e.code === 'Space') {
+        e.preventDefault();
+
+        if (player.position.y <= 0.01) {
+            player.userData.jumpSpeed = 7;
+        }
+    }
+
+    if (e.code === 'KeyE') {
+        specialPower();
+    }
+
+    if (e.code === 'Digit1') selectAstronaut('Alex');
+    if (e.code === 'Digit2') selectAstronaut('Luna');
+    if (e.code === 'Digit3') selectAstronaut('Max');
+    if (e.code === 'Digit4') selectAstronaut('Nova');
+
+    if (e.code === 'KeyR' && gameOver) {
+        window.location.reload();
+    }
+});
+
+window.addEventListener('keyup', e => {
+    keys[e.code] = false;
+});
+
+// MOUSE AIM
+window.addEventListener('mousemove', e => {
+
+    if (document.pointerLockElement === renderer.domElement) {
+        yaw -= e.movementX * 0.002;
+    }
+});
+
+// =====================================
+// SHOOTING SYSTEM
+// =====================================
+
+let lastShot = 0;
+
+function shoot() {
+
+    if (gameOver) return;
+
+    const now = Date.now();
+
+    const cooldown = rapidFire ? 100 : 350;
+
+    if (now - lastShot < cooldown) return;
+
+    lastShot = now;
+
+    const direction = new THREE.Vector3(
+        Math.sin(yaw),
+        0,
+        -Math.cos(yaw)
+    );
+
+    const start = player.position.clone();
+
+    start.y += 1.45;
+
+    start.add(direction.clone().multiplyScalar(0.8));
+
+    const laser = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 8, 8),
+        new THREE.MeshBasicMaterial({
+            color: 0x39eaff
+        })
+    );
+
+    laser.position.copy(start);
+
+    scene.add(laser);
+
+    projectiles.push({
+        mesh: laser,
+        velocity: direction.multiplyScalar(0.9),
+        life: 70
+    });
+}
+
+window.addEventListener('mousedown', e => {
+
+    if (e.button !== 0) return;
+
+    shoot();
+
+    if (document.pointerLockElement !== renderer.domElement) {
+        renderer.domElement.requestPointerLock?.();
+    }
+});
+
+// =====================================
+// SPECIAL POWERS
+// =====================================
+
+function specialPower() {
+
+    if (!powerReady || gameOver) return;
+
+    powerReady = false;
+
+    if (astronaut === 'Alex') {
+
+        shield = true;
+
+        messageUI.textContent =
+            'ALEX: ENERGY SHIELD ACTIVATED!';
+
+        setTimeout(() => shield = false, 5000);
+    }
+
+    else if (astronaut === 'Luna') {
+
+        rapidFire = true;
+
+        messageUI.textContent =
+            'LUNA: LASER BOOST ACTIVATED!';
+
+        setTimeout(() => rapidFire = false, 5000);
+    }
+
+    else if (astronaut === 'Max') {
+
+        health = Math.min(100, health + 40);
+
+        messageUI.textContent =
+            'MAX: HEALTH RESTORED!';
+    }
+
+    else if (astronaut === 'Nova') {
+
+        gravityPulse = true;
+
+        messageUI.textContent =
+            'NOVA: GRAVITY PULSE ACTIVATED!';
+
+        setTimeout(() => {
+            gravityPulse = false;
+        }, 5000);
+    }
+
+    setTimeout(() => {
+        powerReady = true;
+    }, 8000);
+}
+
+// =====================================
+// BLACK HOLE
+// =====================================
+
+const blackHole = new THREE.Group();
+
+blackHole.position.set(12, 0, -18);
+
+scene.add(blackHole);
+
+const hole = new THREE.Mesh(
+    new THREE.SphereGeometry(2.2, 32, 32),
+    new THREE.MeshBasicMaterial({
+        color: 0x000000
+    })
+);
+
+hole.position.y = 2.5;
+
+blackHole.add(hole);
+
+// PURPLE RING
+const ring1 = new THREE.Mesh(
+    new THREE.TorusGeometry(3.2, 0.18, 8, 80),
+    new THREE.MeshBasicMaterial({
+        color: 0x963cff
+    })
+);
+
+ring1.position.y = 2.5;
+ring1.rotation.x = 1.2;
+
+blackHole.add(ring1);
+
+// BLUE RING
+const ring2 = new THREE.Mesh(
+    new THREE.TorusGeometry(2.8, 0.1, 8, 80),
+    new THREE.MeshBasicMaterial({
+        color: 0x26dfff
+    })
+);
+
+ring2.position.y = 2.5;
+ring2.rotation.x = 1.4;
+
+blackHole.add(ring2);
+
+// GRAVITY
+function applyBlackHoleGravity(delta) {
+
+    const target = new THREE.Vector3(
+        blackHole.position.x,
+        0,
+        blackHole.position.z
+    );
+
+    const direction = target.clone().sub(player.position);
+
+    const distance = direction.length();
+
+    const distanceUI =
+        document.getElementById('distance');
+
+    if (distance < 8) {
+        distanceUI.textContent = 'DANGER!';
+        distanceUI.style.color = 'red';
+    }
+
+    else if (distance < 19) {
+        distanceUI.textContent = 'WARNING';
+        distanceUI.style.color = 'orange';
+    }
+
+    else {
+        distanceUI.textContent = 'SAFE';
+        distanceUI.style.color = '#65e6ff';
+    }
+
+    if (distance < 19 && distance > 2.5) {
+
+        direction.normalize();
+
+        const force = (19 - distance) * 0.65;
+
+        player.position.addScaledVector(
+            direction,
+            force * delta
+        );
+
+        if (!gravityPulse) {
+            messageUI.textContent =
+                'WARNING! BLACK HOLE GRAVITY DETECTED!';
+        }
+    }
+
+    if (distance <= 2.5 && !shield) {
+        health = Math.max(0, health - 25 * delta);
+    }
+}
+
+// =====================================
+// ENEMY CREATION
+// =====================================
+
+function createEnemy(x, z, boss = false) {
+
+    const enemy = new THREE.Group();
+
+    scene.add(enemy);
+
+    const skin = new THREE.MeshStandardMaterial({
+        color: boss ? 0x9c25ff : 0x77758c,
+        emissive: boss ? 0x380060 : 0x000000
+    });
+
+    const darkEnemy = new THREE.MeshStandardMaterial({
+        color: 0x29283b
+    });
+
+    const eyes = new THREE.MeshBasicMaterial({
+        color: boss ? 0xff0000 : 0xff7135
+    });
+
+    if (boss) {
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.8, 1.4, 5, 10),
+            skin,
+            0, 1.3, 0
+        );
+
+        part(
+            enemy,
+            new THREE.SphereGeometry(0.48, 16, 16),
+            skin,
+            0, 2.3, 0
+        );
+
+    } else {
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.27, 0.82, 6, 10),
+            skin,
+            0, 1.12, 0
+        );
+
+        const head = part(
+            enemy,
+            new THREE.SphereGeometry(1, 24, 18),
+            skin,
+            0, 2.25, 0
+        );
+
+        head.scale.set(0.57, 0.78, 0.48);
+
+        part(
+            enemy,
+            new THREE.SphereGeometry(0.12, 16, 12),
+            eyes,
+            -0.24, 2.30, -0.46
+        );
+
+        part(
+            enemy,
+            new THREE.SphereGeometry(0.12, 16, 12),
+            eyes,
+            0.24, 2.30, -0.46
+        );
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.085, 0.67, 5, 8),
+            skin,
+            -0.39, 1.35, 0
+        );
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.085, 0.67, 5, 8),
+            skin,
+            0.39, 1.35, 0
+        );
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.095, 0.68, 5, 8),
+            darkEnemy,
+            -0.16, 0.43, 0
+        );
+
+        part(
+            enemy,
+            new THREE.CapsuleGeometry(0.095, 0.68, 5, 8),
+            darkEnemy,
+            0.16, 0.43, 0
+        );
+    }
+
+    enemy.position.set(x, 0, z);
+
+    enemies.push({
+        mesh: enemy,
+        hp: boss ? 20 : 2,
+        boss: boss,
+        speed: boss ? 0.025 : 0.045,
+        attack: 0
+    });
+}
+
+// INITIAL ENEMIES
+for (let i = 0; i < 7; i++) {
+
+    createEnemy(
+        (Math.random() - 0.5) * 35,
+        -15 - Math.random() * 30
+    );
+}
+
+// =====================================
+// EXPLOSION
+// =====================================
+
+function createExplosion(position) {
+
+    for (let i = 0; i < 18; i++) {
+
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.08, 6, 6),
+            new THREE.MeshBasicMaterial({
+                color: 0xff5500,
+                transparent: true
+            })
+        );
+
+        particle.position.copy(position);
+
+        scene.add(particle);
+
+        particles.push({
+            mesh: particle,
+            velocity: new THREE.Vector3(
+                (Math.random() - 0.5) * 0.35,
+                Math.random() * 0.3,
+                (Math.random() - 0.5) * 0.35
+            ),
+            life: 30
+        });
+    }
+}
+
+// =====================================
+// BOSS SYSTEM
+// =====================================
+
+function spawnBoss() {
+
+    if (bossSpawned) return;
+
+    bossSpawned = true;
+
+    createEnemy(0, -35, true);
+
+    document.getElementById('bossHUD').style.display = 'block';
+
+    messageUI.textContent =
+        'WARNING! FINAL BOSS APPROACHING!';
+}
+
+// =====================================
+// NASA SCIENCE DATABASE
+// =====================================
+
+const nasaResources = [
+    {
+        title: 'GMAT – Orbital Mechanics',
+        category: 'MISSION DESIGN',
+        description: 'Learn spacecraft trajectories and orbital paths.',
+        link: 'https://software.nasa.gov/software/GSC-19640-1'
+    },
+    {
+        title: 'CubeSat 101',
+        category: 'SATELLITE ENGINEERING',
+        description: 'Learn satellite design and mission development.',
+        link: 'https://www.nasa.gov/kennedy/launch-services-program/cubesat-launch-initiative/'
+    },
+    {
+        title: 'NASA Space Mission Design Tools',
+        category: 'SPACECRAFT DESIGN',
+        description: 'Explore spacecraft mission design tools.',
+        link: 'https://www.nasa.gov/smallsat-institute/space-mission-design-tools/'
+    }
+];
+
+let nasaScienceUnlocked = false;
+
+const nasaButton = document.createElement('button');
+
+nasaButton.textContent = '🔒 NASA SCIENCE FILES';
+
+nasaButton.style.cssText = `
+position:fixed;
+top:75px;
+right:15px;
+z-index:50;
+padding:12px 15px;
+background:#071d3d;
+color:#43eaff;
+border:1px solid #43eaff;
+border-radius:8px;
+cursor:pointer;
+`;
+
+document.body.appendChild(nasaButton);
+
+const nasaPanel = document.createElement('div');
+
+nasaPanel.style.cssText = `
+display:none;
+position:fixed;
+inset:0;
+z-index:200;
+background:rgba(0,0,10,0.96);
+overflow-y:auto;
+padding:30px 15px;
+color:white;
+`;
+
+document.body.appendChild(nasaPanel);
+
+function showNASAResources() {
+
+    const cards = nasaResources.map((resource, index) => {
+
+        return `
+        <div style="
+            background:#102440;
+            border:1px solid #287ca8;
+            border-radius:12px;
+            padding:20px;
+            margin:15px auto;
+            max-width:650px;
+        ">
+
+            <h2 style="color:#43eaff">
+                ${index + 1}. ${resource.title}
+            </h2>
+
+            <p style="color:#f6c85f">
+                ${resource.category}
+            </p>
+
+            <p>${resource.description}</p>
+
+            ${
+                nasaScienceUnlocked
+                ? `<a href="${resource.link}" target="_blank"
+                     rel="noopener noreferrer"
+                     style="color:#43eaff">
+                     OPEN NASA RESOURCE ↗
+                   </a>`
+                : `<p style="color:orange">
+                     🔒 LOCKED – Defeat the final boss
+                   </p>`
+            }
+
+        </div>
+        `;
+
+    }).join('');
+
+    nasaPanel.innerHTML = `
+        <div style="max-width:800px;margin:auto;text-align:center">
+
+            <h1 style="color:#43eaff">
+                NASA SCIENCE DATABASE
+            </h1>
+
+            <p>Explore space mission engineering resources.</p>
+
+            ${cards}
+
+            <p style="color:#aaa;font-size:12px">
+                Independent NASA-inspired educational game.
+            </p>
+
+            <button id="closeNASA" style="
+                padding:12px 30px;
+                background:#0879bb;
+                color:white;
+                border:0;
+                border-radius:8px;
+                margin:20px;
+            ">CLOSE</button>
+
+        </div>
+    `;
+
+    document.getElementById('closeNASA').onclick = () => {
+        nasaPanel.style.display = 'none';
+    };
+}
+
+nasaButton.onclick = () => {
+    showNASAResources();
+    nasaPanel.style.display = 'block';
+};
+
+function unlockNASAScience() {
+
+    nasaScienceUnlocked = true;
+
+    nasaButton.textContent = '🔬 NASA SCIENCE LIBRARY';
+
+    const status = document.getElementById('scienceStatus');
+
+    if (status) {
+        status.textContent = 'UNLOCKED';
+        status.style.color = '#00ff88';
+    }
+
+    messageUI.textContent =
+        'NASA SCIENCE DATABASE UNLOCKED!';
+}
+
+// =====================================
+// DATABASE PANEL CONTROLS
+// =====================================
+
+document.getElementById('database').onclick = () => {
+    document.getElementById('info').style.display = 'block';
+};
+
+document.getElementById('closeInfo').onclick = () => {
+    document.getElementById('info').style.display = 'none';
+};
+
+// =====================================
+// MISSION SYSTEM
+// =====================================
+
+function updateMission() {
+
+    if (currentMission === 1) {
+
+        missionObjective.textContent = missionNames[0];
+
+        missionProgress.textContent =
+            `Enemies defeated: ${kills} / 5`;
+
+        if (kills >= 5) {
+            currentMission = 2;
+            messageUI.textContent = 'MISSION 1 COMPLETED!';
+        }
+    }
+
+    else if (currentMission === 2) {
+
+        missionObjective.textContent = missionNames[1];
+        missionProgress.textContent = 'Satellite mission active';
+
+        if (kills >= 8) {
+            currentMission = 3;
+            messageUI.textContent = 'SATE
