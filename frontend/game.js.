@@ -1,0 +1,575 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+import { createEnvironment } from './environment.js';
+import {
+    createPlayer,
+    selectAstronaut
+} from './player.js';
+
+import {
+    createEnemy,
+    createExplosion,
+    updateExplosions
+} from './enemies.js';
+
+import {
+    createMissionState,
+    updateMission,
+    getMissionProgress
+} from './missions.js';
+
+import { setupNASAResources } from './nasa.js';
+
+// -------------------------------
+// 1. GAME SETUP
+// -------------------------------
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
+
+camera.position.set(0, 5, 12);
+camera.lookAt(0, 1, -10);
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+const environment = createEnvironment(scene);
+const player = createPlayer(scene);
+
+const gameState = {
+    astronaut: "Alex",
+    health: 100,
+    score: 0,
+    distance: 0,
+    gameOver: false
+};
+
+const missionState = createMissionState();
+const nasaController = setupNASAResources();
+
+const enemies = [];
+const projectiles = [];
+const explosions = [];
+const scienceItems = [];
+
+let enemyTimer = 0;
+let scienceTimer = 0;
+let shootCooldown = 0;
+let nasaUnlocked = false;
+let bossCreated = false;
+
+// -------------------------------
+// 2. HTML ELEMENTS
+// -------------------------------
+
+const healthText = document.getElementById("health");
+const distanceText = document.getElementById("distance");
+const scoreText = document.getElementById("score");
+const enemyText = document.getElementById("enemies");
+const heroText = document.getElementById("hero");
+
+const missionObjective =
+    document.getElementById("missionObjective");
+
+const missionProgress =
+    document.getElementById("missionProgress");
+
+const scienceStatus =
+    document.getElementById("scienceStatus");
+
+const message =
+    document.getElementById("message");
+
+const bossHUD =
+    document.getElementById("bossHUD");
+
+const bossHealthBar =
+    document.getElementById("bossHealth");
+
+// -------------------------------
+// 3. KEYBOARD CONTROLS
+// -------------------------------
+
+const keys = {};
+
+window.addEventListener("keydown", (event) => {
+    keys[event.code] = true;
+
+    if (event.code === "Space") {
+        shootLaser();
+    }
+
+    if (event.code === "Digit1") {
+        selectAstronaut("Alex", gameState);
+    }
+
+    if (event.code === "Digit2") {
+        selectAstronaut("Luna", gameState);
+    }
+
+    if (event.code === "Digit3") {
+        selectAstronaut("Max", gameState);
+    }
+
+    if (event.code === "Digit4") {
+        selectAstronaut("Nova", gameState);
+    }
+});
+
+window.addEventListener("keyup", (event) => {
+    keys[event.code] = false;
+});
+
+// -------------------------------
+// 4. LASER SHOOTING
+// -------------------------------
+
+function shootLaser() {
+    if (gameState.gameOver || shootCooldown > 0) {
+        return;
+    }
+
+    const laser = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 8, 8),
+        new THREE.MeshBasicMaterial({
+            color: 0x00ffff
+        })
+    );
+
+    laser.position.set(
+        player.position.x,
+        1.3,
+        player.position.z - 1
+    );
+
+    scene.add(laser);
+
+    projectiles.push(laser);
+
+    shootCooldown = 0.3;
+}
+
+// -------------------------------
+// 5. CREATE ENEMIES
+// -------------------------------
+
+function spawnEnemy() {
+    const x = (Math.random() - 0.5) * 18;
+
+    const enemy = createEnemy(
+        scene,
+        x,
+        -35,
+        false
+    );
+
+    enemies.push(enemy);
+}
+
+function spawnBoss() {
+    if (bossCreated) return;
+
+    const boss = createEnemy(
+        scene,
+        0,
+        -40,
+        true
+    );
+
+    enemies.push(boss);
+    bossCreated = true;
+
+    if (bossHUD) {
+        bossHUD.style.display = "block";
+    }
+
+    if (message) {
+        message.textContent = "GALAXY BOSS APPROACHING!";
+    }
+}
+
+// -------------------------------
+// 6. SCIENCE COLLECTION
+// -------------------------------
+
+function spawnScienceItem() {
+    const item = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.5),
+        new THREE.MeshStandardMaterial({
+            color: 0x00ffff,
+            emissive: 0x006688
+        })
+    );
+
+    item.position.set(
+        (Math.random() - 0.5) * 16,
+        1.5,
+        -30
+    );
+
+    scene.add(item);
+    scienceItems.push(item);
+}
+
+// -------------------------------
+// 7. MISSION DISPLAY
+// -------------------------------
+
+function refreshMissionDisplay() {
+    const progress = getMissionProgress(missionState);
+
+    if (missionObjective) {
+        missionObjective.textContent =
+            progress.name + " - " + progress.objective;
+    }
+
+    if (missionProgress) {
+        missionProgress.textContent =
+            "Mission Progress: " + progress.progress + "%";
+    }
+
+    if (scienceStatus) {
+        scienceStatus.textContent =
+            "Science Discoveries: " + missionState.science;
+    }
+
+    if (progress.completed && message) {
+        message.textContent = "ALL MISSIONS COMPLETED!";
+    }
+}
+
+// -------------------------------
+// 8. UPDATE PLAYER
+// -------------------------------
+
+function updatePlayer(delta) {
+    const speed = 8 * delta;
+
+    if (keys["ArrowLeft"] || keys["KeyA"]) {
+        player.position.x -= speed;
+    }
+
+    if (keys["ArrowRight"] || keys["KeyD"]) {
+        player.position.x += speed;
+    }
+
+    if (keys["ArrowUp"] || keys["KeyW"]) {
+        player.position.z -= speed;
+    }
+
+    if (keys["ArrowDown"] || keys["KeyS"]) {
+        player.position.z += speed;
+    }
+
+    player.position.x = THREE.MathUtils.clamp(
+        player.position.x,
+        -9,
+        9
+    );
+
+    player.position.z = THREE.MathUtils.clamp(
+        player.position.z,
+        -5,
+        5
+    );
+
+    camera.position.x +=
+        (player.position.x - camera.position.x) * 0.05;
+
+    camera.lookAt(
+        player.position.x,
+        1,
+        -10
+    );
+}
+
+// -------------------------------
+// 9. UPDATE PROJECTILES
+// -------------------------------
+
+function updateProjectiles(delta) {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        const laser = projectiles[i];
+
+        laser.position.z -= 30 * delta;
+
+        let hit = false;
+
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            const enemy = enemies[j];
+
+            if (!enemy.alive) continue;
+
+            const distance = laser.position.distanceTo(
+                enemy.mesh.position.clone().add(
+                    new THREE.Vector3(0, 2, 0)
+                )
+            );
+
+            if (distance < (enemy.isBoss ? 2.5 : 1.5)) {
+                enemy.hp -= 10;
+                hit = true;
+
+                if (enemy.isBoss && bossHealthBar) {
+                    bossHealthBar.style.width =
+                        Math.max(0, enemy.hp) + "%";
+                }
+
+                if (enemy.hp <= 0) {
+                    enemy.alive = false;
+
+                    createExplosion(
+                        scene,
+                        enemy.mesh.position.clone(),
+                        enemy.isBoss ? 0xaa00ff : 0xff8800
+                    ).forEach(p => explosions.push(p));
+
+                    scene.remove(enemy.mesh);
+                    enemies.splice(j, 1);
+
+                    gameState.score += enemy.isBoss ? 500 : 100;
+
+                    if (enemy.isBoss) {
+                        updateMission(missionState, "boss");
+
+                        if (bossHUD) {
+                            bossHUD.style.display = "none";
+                        }
+                    } else {
+                        updateMission(missionState, "kills");
+                    }
+
+                    if (message) {
+                        message.textContent = enemy.isBoss
+                            ? "GALAXY BOSS DEFEATED!"
+                            : "ALIEN DEFEATED!";
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if (hit || laser.position.z < -60) {
+            scene.remove(laser);
+            laser.geometry.dispose();
+            laser.material.dispose();
+            projectiles.splice(i, 1);
+        }
+    }
+}
+
+// -------------------------------
+// 10. UPDATE ENEMIES
+// -------------------------------
+
+function updateEnemies(delta) {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
+
+        enemy.mesh.position.z +=
+            enemy.speed * delta * 60;
+
+        enemy.mesh.rotation.y += delta;
+
+        if (enemy.mesh.position.z > 5) {
+            gameState.health -= enemy.isBoss ? 25 : 10;
+
+            scene.remove(enemy.mesh);
+            enemies.splice(i, 1);
+        }
+    }
+}
+
+// -------------------------------
+// 11. UPDATE SCIENCE ITEMS
+// -------------------------------
+
+function updateScienceItems(delta) {
+    for (let i = scienceItems.length - 1; i >= 0; i--) {
+        const item = scienceItems[i];
+
+        item.rotation.y += delta * 2;
+        item.position.z += 3 * delta;
+
+        const distance = item.position.distanceTo(
+            player.position.clone().add(
+                new THREE.Vector3(0, 1.5, 0)
+            )
+        );
+
+        if (distance < 2) {
+            updateMission(missionState, "science");
+
+            gameState.score += 50;
+
+            scene.remove(item);
+            scienceItems.splice(i, 1);
+
+            if (message) {
+                message.textContent = "SCIENCE DATA COLLECTED!";
+            }
+        } else if (item.position.z > 8) {
+            scene.remove(item);
+            scienceItems.splice(i, 1);
+        }
+    }
+}
+
+// -------------------------------
+// 12. MAIN GAME LOOP
+// -------------------------------
+
+let previousTime = 0;
+
+function animate(time) {
+    requestAnimationFrame(animate);
+
+    if (gameState.gameOver) {
+        renderer.render(scene, camera);
+        return;
+    }
+
+    const delta = Math.min(
+        (time - previousTime) / 1000 || 0.016,
+        0.05
+    );
+
+    previousTime = time;
+
+    shootCooldown = Math.max(
+        0,
+        shootCooldown - delta
+    );
+
+    updatePlayer(delta);
+
+    // Increase travel distance
+    gameState.distance += delta * 8;
+
+    updateMission(
+        missionState,
+        "distance",
+        delta * 8
+    );
+
+    // Spawn enemies
+    enemyTimer += delta;
+
+    if (
+        enemyTimer > 2 &&
+        missionState.currentMission < 3
+    ) {
+        spawnEnemy();
+        enemyTimer = 0;
+    }
+
+    // Spawn boss after science mission
+    if (missionState.currentMission === 3) {
+        spawnBoss();
+    }
+
+    // Spawn science items
+    scienceTimer += delta;
+
+    if (scienceTimer > 5) {
+        spawnScienceItem();
+        scienceTimer = 0;
+    }
+
+    updateProjectiles(delta);
+    updateEnemies(delta);
+    updateScienceItems(delta);
+
+    updateExplosions(
+        scene,
+        explosions,
+        delta
+    );
+
+    // Unlock NASA resources after science mission
+    if (
+        missionState.currentMission >= 3 &&
+        !nasaUnlocked
+    ) {
+        nasaController?.unlock();
+        nasaUnlocked = true;
+    }
+
+    // Animate environment
+    if (environment.blackHole) {
+        environment.blackHole.rotation.y += delta * 0.3;
+    }
+
+    // Update HUD
+    if (healthText) {
+        healthText.textContent =
+            "Health: " + Math.max(0, gameState.health);
+    }
+
+    if (distanceText) {
+        distanceText.textContent =
+            "Distance: " +
+            Math.floor(gameState.distance) + " m";
+    }
+
+    if (scoreText) {
+        scoreText.textContent =
+            "Score: " + gameState.score;
+    }
+
+    if (enemyText) {
+        enemyText.textContent =
+            "Enemies: " + enemies.length;
+    }
+
+    if (heroText) {
+        heroText.textContent =
+            "Astronaut: " + gameState.astronaut;
+    }
+
+    refreshMissionDisplay();
+
+    // Game over
+    if (gameState.health <= 0) {
+        gameState.gameOver = true;
+
+        if (message) {
+            message.textContent =
+                "MISSION OVER! Refresh the page to restart.";
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+
+// -------------------------------
+// 13. WINDOW RESIZE
+// -------------------------------
+
+window.addEventListener("resize", () => {
+    camera.aspect =
+        window.innerWidth / window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+});
+
+// Start game
+refreshMissionDisplay();
+animate(0);
