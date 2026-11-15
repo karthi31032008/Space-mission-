@@ -155,5 +155,8 @@ startButton.addEventListener("click", () => {
     }
 
     panel.style.display = "none";
-});
 
+    if (typeof window.startGame === "function") {
+        window.startGame();
+    }
+});
