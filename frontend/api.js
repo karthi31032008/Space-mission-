@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://YOUR-RENDER-SERVICE.onrender.com";
+const API_BASE_URL = "https://YOUR-ACTUAL-RENDER-URL.onrender.com";
 
 // Save player score
 export async function savePlayerScore(playerData) {
@@ -33,8 +33,6 @@ export async function savePlayerScore(playerData) {
     }
 }
 
-
-// Get leaderboard
 export async function getLeaderboard() {
     try {
         const response = await fetch(
