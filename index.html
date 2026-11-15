@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SPACE MISSION - DARK GALAXY</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- GAME HUD -->
+    <div id="hud">
+        <div class="stat">❤️ Health: <span id="health">100</span></div>
+        <div class="stat">🌀 Black Hole: <span id="distance">SAFE</span></div>
+        <div class="stat">⭐ Score: <span id="score">0</span></div>
+        <div class="stat">👾 Enemies: <span id="enemies">0</span></div>
+        <div class="stat">🧑‍🚀 Astronaut: <span id="hero">Alex</span></div>
+    </div>
+
+    <!-- MISSION CONTROL -->
+    <div id="missionHUD">
+        <h3>🎯 MISSION CONTROL</h3>
+        <p id="missionObjective">
+            Defeat 5 enemy soldiers.
+        </p>
+        <p id="missionProgress">
+            Enemies defeated: 0 / 5
+        </p>
+
+        <hr>
+
+        <p>🔬 NASA SCIENCE FILE</p>
+        <p id="scienceStatus">LOCKED</p>
+    </div>
+
+    <!-- GAME MESSAGE -->
+    <div id="message">
+        DARK GALAXY – PROTECT THE SPACE STATION
+    </div>
+
+    <!-- DATABASE BUTTON -->
+    <button id="database">
+        NASA DATABASE
+    </button>
+
+    <!-- DATABASE PANEL -->
+    <div id="info">
+        <h2>NASA MISSION DATABASE</h2>
+
+        <p><b>GMAT:</b> Spacecraft orbit and trajectory analysis.</p>
+        <p><b>CubeSat 101:</b> Satellite design and mission development.</p>
+        <p><b>Mission Design Lab:</b> Space mission planning.</p>
+        <p><b>Mission Viz:</b> Mission trajectory visualization.</p>
+
+        <a href="https://software.nasa.gov/software/GSC-19468-1"
+           target="_blank">NASA GMAT</a>
+
+        <br><br>
+
+        <a href="https://www.nasa.gov/kennedy/launch-services-program/cubesat-launch-initiative/"
+           target="_blank">NASA CubeSat</a>
+
+        <br><br>
+
+        <button id="closeInfo">CLOSE</button>
+    </div>
+
+    <!-- BOSS HEALTH -->
+    <div id="bossHUD">
+        <div>👾 FINAL BOSS</div>
+
+        <div class="bossBar">
+            <div id="bossHealth"></div>
+        </div>
+    </div>
+
+    <!-- GAME CONTROLS -->
+    <div id="help">
+        W A S D: Move |
+        Mouse: Aim |
+        Click: Shoot |
+        Space: Jump |
+        E: Special Power
+    </div>
+
+    <!-- THREE.JS GAME -->
+    <script type="module" src="game.js"></script>
+
+</body>
+</html>
