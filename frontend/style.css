@@ -1,0 +1,272 @@
+/* =================================
+   SPACE MISSION - DARK GALAXY
+   MAIN STYLESHEET
+================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow: hidden;
+    background: #020510;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* GAME HUD */
+
+#hud {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.stat {
+    background: #101c32dd;
+    padding: 10px 16px;
+    margin-bottom: 7px;
+    border: 1px solid #3189bd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* MISSION CONTROL */
+
+#missionHUD {
+    position: fixed;
+    top: 15px;
+    left: 250px;
+    z-index: 3;
+
+    background: #101c32dd;
+    border: 1px solid #3189bd;
+    border-radius: 10px;
+
+    padding: 12px 18px;
+
+    color: white;
+    font-size: 13px;
+
+    max-width: 280px;
+}
+
+#missionHUD h3 {
+    color: #43eaff;
+    margin-bottom: 12px;
+}
+
+#missionHUD p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#missionHUD hr {
+    border: 0;
+    border-top: 1px solid #3189bd;
+    margin: 10px 0;
+}
+
+/* GAME MESSAGE */
+
+#message {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    color: #65e6ff;
+    font-weight: bold;
+    text-align: center;
+
+    z-index: 3;
+    width: 70%;
+}
+
+/* NASA DATABASE BUTTON */
+
+#database {
+    position: fixed;
+    right: 15px;
+    top: 15px;
+    z-index: 4;
+
+    padding: 12px 18px;
+
+    background: #071d3d;
+    color: #43eaff;
+
+    border: 1px solid #43eaff;
+    border-radius: 8px;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#database:hover {
+    background: #123b65;
+}
+
+/* NASA INFORMATION PANEL */
+
+#info {
+    display: none;
+
+    position: fixed;
+    inset: 10%;
+
+    background: #101c32f5;
+    border: 1px solid #4ccfff;
+    border-radius: 15px;
+
+    padding: 25px;
+    z-index: 5;
+
+    overflow-y: auto;
+}
+
+#info h2 {
+    color: #43eaff;
+    margin-bottom: 18px;
+}
+
+#info p {
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+#info a {
+    color: #43eaff;
+}
+
+#info button {
+    padding: 9px 16px;
+
+    background: #168bff;
+    color: white;
+
+    border: 0;
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+/* BOSS HEALTH */
+
+#bossHUD {
+    display: none;
+
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 300px;
+
+    background: #222;
+    padding: 8px;
+
+    border: 1px solid red;
+    border-radius: 8px;
+
+    z-index: 3;
+}
+
+.boss-title {
+    text-align: center;
+    color: white;
+    margin-bottom: 7px;
+}
+
+.boss-bar {
+    height: 12px;
+    background: #555;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#bossHealth {
+    height: 100%;
+    width: 100%;
+    background: red;
+    transition: width 0.2s;
+}
+
+/* GAME CONTROLS */
+
+#help {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+
+    background: #101c32dd;
+
+    padding: 12px;
+    border-radius: 8px;
+
+    font-size: 13px;
+    z-index: 2;
+}
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width: 700px) {
+
+    #hud {
+        top: 10px;
+        left: 10px;
+    }
+
+    .stat {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    #missionHUD {
+        top: 190px;
+        left: 10px;
+        max-width: 200px;
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    #database {
+        top: 10px;
+        right: 10px;
+        padding: 9px;
+        font-size: 11px;
+    }
+
+    #message {
+        top: 150px;
+        font-size: 12px;
+        width: 90%;
+    }
+
+    #help {
+        bottom: 10px;
+        left: 10px;
+        font-size: 10px;
+        max-width: 90%;
+    }
+
+    #bossHUD {
+        top: 100px;
+        width: 230px;
+    }
+
+    #info {
+        inset: 5%;
+        padding: 15px;
+    }
+}
