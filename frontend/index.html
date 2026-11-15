@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SPACE MISSION - DARK GALAXY</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- GAME HUD -->
+    <div id="hud">
+
+        <div class="stat">
+            ❤️ Health:
+            <span id="health">100</span>
+        </div>
+
+        <div class="stat">
+            🌀 Black Hole Distance:
+            <span id="distance">Safe</span>
+        </div>
+
+        <div class="stat">
+            ⭐ Score:
+            <span id="score">0</span>
+        </div>
+
+        <div class="stat">
+            👾 Enemies:
+            <span id="enemies">0</span>
+        </div>
+
+        <div class="stat">
+            🧑‍🚀 Astronaut:
+            <span id="hero">Alex</span>
+        </div>
+
+    </div>
+
+
+    <!-- MISSION CONTROL -->
+    <div id="missionHUD">
+
+        <h3>🎯 MISSION CONTROL</h3>
+
+        <p id="missionObjective">
+            Defeat 5 enemy soldiers.
+        </p>
+
+        <p id="missionProgress">
+            Enemies defeated: 0 / 5
+        </p>
+
+        <hr>
+
+        <p>🔬 NASA SCIENCE FILE</p>
+
+        <p id="scienceStatus">LOCKED</p>
+
+    </div>
+
+
+    <!-- GAME MESSAGE -->
+    <div id="message">
+        DARK GALAXY – PROTECT THE SPACE STATION
+    </div>
+
+
+    <!-- NASA DATABASE BUTTON -->
+    <button id="database">
+        NASA DATABASE
+    </button>
+
+
+    <!-- NASA DATABASE PANEL -->
+    <div id="info">
+
+        <h2>NASA MISSION DATABASE</h2>
+
+        <p>
+            GMAT: Spacecraft orbit and trajectory analysis.
+        </p>
+
+        <p>
+            CubeSat 101: Satellite design and mission development.
+        </p>
+
+        <p>
+            Mission Design Lab: Space mission planning.
+        </p>
+
+        <p>
+            Mission Viz: Visual exploration of trajectories.
+        </p>
+
+        <p>
+            Telescope Game: Learn telescope design.
+        </p>
+
+        <p>
+            These resources inspire the educational
+            challenges in this independent game.
+        </p>
+
+        <p>
+            <a href="https://software.nasa.gov/software/GSC-19468-1"
+               target="_blank"
+               rel="noopener noreferrer">
+                NASA GMAT
+            </a>
+        </p>
+
+        <p>
+            <a href="https://www3.nasa.gov/sites/default/files/atoms/files/nasa_csli_cubesat_101_508.pdf"
+               target="_blank"
+               rel="noopener noreferrer">
+                CubeSat 101
+            </a>
+        </p>
+
+        <p>
+            <a href="https://etd.gsfc.nasa.gov/capabilities/integrated-design-center/mission-design-lab/"
+               target="_blank"
+               rel="noopener noreferrer">
+                Mission Design Lab
+            </a>
+        </p>
+
+        <p>
+            <a href="https://nasa.github.io/mission-viz/"
+               target="_blank"
+               rel="noopener noreferrer">
+                NASA Mission Viz
+            </a>
+        </p>
+
+        <button id="closeDatabase">
+            CLOSE
+        </button>
+
+    </div>
+
+
+    <!-- BOSS HEALTH -->
+    <div id="bossHUD">
+
+        <div class="boss-title">
+            👾 FINAL BOSS
+        </div>
+
+        <div class="boss-bar">
+
+            <div id="bossHealth"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- GAME CONTROLS -->
+    <div id="help">
+        W A S D: Move |
+        Mouse: Aim |
+        Click: Shoot |
+        Space: Jump |
+        E: Special Power
+    </div>
+
+
+    <!-- GAME JAVASCRIPT -->
+    <script type="module" src="game.js"></script>
+
+</body>
+
+</html>
