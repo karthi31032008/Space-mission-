@@ -112,3 +112,48 @@ document.querySelectorAll(".character-card").forEach(button => {
         }
     });
 });
+
+// CHARACTER SELECTION EFFECTS
+
+document.querySelectorAll(".character-card").forEach(card => {
+    card.addEventListener("mouseenter", () => {
+        card.style.boxShadow = "0 0 20px cyan";
+    });
+
+    card.addEventListener("mouseleave", () => {
+        card.style.boxShadow = "none";
+    });
+});
+
+// START GAME BUTTON
+
+const startButton = document.createElement("button");
+
+startButton.textContent = "START MISSION";
+startButton.id = "startMission";
+
+startButton.style.cssText = `
+    margin-top: 20px;
+    padding: 14px 35px;
+    background: cyan;
+    color: #001020;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+`;
+
+panel.appendChild(startButton);
+
+startButton.addEventListener("click", () => {
+    const selected = document.getElementById("selectedCharacter");
+
+    if (!selected.textContent.includes("selected!")) {
+        selected.textContent = "First select an astronaut!";
+        return;
+    }
+
+    panel.style.display = "none";
+});
+
