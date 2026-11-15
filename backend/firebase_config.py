@@ -1,11 +1,13 @@
+
 import os
 import json
-
 import firebase_admin
+
 from firebase_admin import credentials, firestore
 
 
 def initialize_firebase():
+
     if firebase_admin._apps:
         return
 
@@ -18,9 +20,7 @@ def initialize_firebase():
             "FIREBASE_SERVICE_ACCOUNT environment variable is missing"
         )
 
-    service_account_info = json.loads(
-        service_account_json
-    )
+    service_account_info = json.loads(service_account_json)
 
     credential = credentials.Certificate(
         service_account_info
@@ -30,6 +30,8 @@ def initialize_firebase():
 
 
 def get_firestore_db():
+
     initialize_firebase()
+
     return firestore.client()
-  
+    
