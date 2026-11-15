@@ -340,6 +340,7 @@ function selectAstronaut(name) {
     messageUI.textContent =
         name + ' selected: ' + astronautPowers[name];
 }
+window.selectAstronaut = selectAstronaut;
 
 // =====================================
 // KEYBOARD CONTROLS
