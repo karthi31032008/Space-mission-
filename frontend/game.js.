@@ -52,6 +52,7 @@ const gameState = {
     health: 100,
     score: 0,
     distance: 0,
+    kills: 0,
     gameOver: false
 };
 
@@ -339,6 +340,7 @@ function updateProjectiles(delta) {
                     enemies.splice(j, 1);
 
                     gameState.score += enemy.isBoss ? 500 : 100;
+                    gameState.kills++;
 
                     if (enemy.isBoss) {
                         updateMission(missionState, "boss");
@@ -430,7 +432,27 @@ function updateScienceItems(delta) {
 // -------------------------------
 // 12. MAIN GAME LOOP
 // -------------------------------
+let scoreSubmitted = false;
 
+async function submitFinalScore() {
+    if (scoreSubmitted) return;
+
+    scoreSubmitted = true;
+
+    try {
+        const result = await savePlayerScore({
+            player_name: gameState.astronaut,
+            score: gameState.score,
+            distance: Math.floor(gameState.distance),
+            kills: gameState.kills
+        });
+
+        console.log("Score saved:", result);
+
+    } catch (error) {
+        console.error("Score submission failed:", error);
+    }
+}
 let previousTime = 0;
 
 function animate(time) {
@@ -544,6 +566,7 @@ function animate(time) {
     // Game over
     if (gameState.health <= 0) {
         gameState.gameOver = true;
+            submitFinalScore();
 
         if (message) {
             message.textContent =
