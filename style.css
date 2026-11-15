@@ -1,0 +1,229 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow: hidden;
+    background: #020510;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* GAME CANVAS */
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* PLAYER HUD */
+#hud {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.stat {
+    background: rgba(10, 25, 50, 0.9);
+    padding: 11px 16px;
+    margin-bottom: 8px;
+    border: 1px solid #3189bd;
+    border-radius: 8px;
+    box-shadow: 0 0 12px #0879bb55;
+    font-size: 14px;
+}
+
+/* MISSION CONTROL */
+#missionHUD {
+    position: fixed;
+    top: 15px;
+    left: 250px;
+    z-index: 10;
+    width: 270px;
+    padding: 15px;
+    background: rgba(10, 25, 50, 0.9);
+    border: 1px solid #3189bd;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+#missionHUD h3 {
+    color: #43eaff;
+    margin-bottom: 12px;
+}
+
+#missionHUD p {
+    margin: 9px 0;
+}
+
+#missionHUD hr {
+    border: 0;
+    border-top: 1px solid #3189bd;
+    margin: 12px 0;
+}
+
+/* GAME MESSAGE */
+#message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    color: #65e6ff;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 0 12px #00aaff;
+    width: 60%;
+}
+
+/* DATABASE BUTTON */
+button {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#database {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 30;
+    padding: 13px 18px;
+    background: #071d3d;
+    color: #43eaff;
+    border: 1px solid #43eaff;
+    border-radius: 8px;
+}
+
+#database:hover {
+    background: #0879bb;
+    color: white;
+    box-shadow: 0 0 15px #43eaff;
+}
+
+/* NASA INFORMATION PANEL */
+#info {
+    display: none;
+    position: fixed;
+    inset: 10%;
+    z-index: 100;
+    padding: 25px;
+    overflow-y: auto;
+    background: rgba(5, 12, 35, 0.97);
+    border: 1px solid #43eaff;
+    border-radius: 15px;
+    box-shadow: 0 0 30px #008cff55;
+}
+
+#info h2 {
+    color: #43eaff;
+    margin-bottom: 20px;
+}
+
+#info p {
+    margin: 15px 0;
+}
+
+#info a {
+    color: #43eaff;
+}
+
+#info button {
+    padding: 10px 20px;
+    background: #0879bb;
+    color: white;
+    border: 0;
+    border-radius: 7px;
+}
+
+/* BOSS HEALTH */
+#bossHUD {
+    display: none;
+    position: fixed;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    padding: 10px;
+    background: #222;
+    border: 1px solid red;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 20;
+}
+
+.bossBar {
+    height: 13px;
+    margin-top: 8px;
+    background: #555;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#bossHealth {
+    width: 100%;
+    height: 100%;
+    background: red;
+    transition: width 0.3s;
+}
+
+/* GAME CONTROLS */
+#help {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    z-index: 10;
+    padding: 12px;
+    background: rgba(10, 25, 50, 0.9);
+    border: 1px solid #3189bd;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 700px) {
+
+    #missionHUD {
+        top: 15px;
+        right: 10px;
+        left: auto;
+        width: 190px;
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    .stat {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+
+    #message {
+        top: 180px;
+        width: 95%;
+        font-size: 12px;
+    }
+
+    #database {
+        top: auto;
+        bottom: 70px;
+        right: 10px;
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    #help {
+        bottom: 10px;
+        left: 10px;
+        max-width: 75%;
+        font-size: 10px;
+    }
+
+    #bossHUD {
+        top: 220px;
+        width: 230px;
+    }
+}
