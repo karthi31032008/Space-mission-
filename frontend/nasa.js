@@ -1,92 +1,61 @@
+
 const nasaResources = [
     {
-        title: "NASA Mission Design",
-        description: "Learn how space missions are planned.",
+        title: "NASA Official Website",
+        description: "Explore NASA missions and discoveries.",
         url: "https://www.nasa.gov/"
     },
     {
-        title: "NASA Solar System Exploration",
-        description: "Explore planets, moons and the solar system.",
+        title: "Solar System Exploration",
+        description: "Explore planets, moons and space.",
         url: "https://science.nasa.gov/solar-system/"
     },
     {
-        title: "NASA Earth Science",
-        description: "Learn about Earth using satellite observations.",
-        url: "https://science.nasa.gov/earth/"
+        title: "NASA Images",
+        description: "Discover space images and astronomy.",
+        url: "https://images.nasa.gov/"
     },
     {
-        title: "NASA Space Place",
-        description: "Simple space science learning resources.",
-        url: "https://spaceplace.nasa.gov/"
+        title: "NASA Mars Exploration",
+        description: "Learn about Mars missions.",
+        url: "https://science.nasa.gov/mars/"
     }
 ];
 
 export function setupNASAResources() {
-    const databaseButton = document.getElementById("database");
-    const infoPanel = document.getElementById("info");
-    const closeButton = document.getElementById("closeDatabase");
 
-    if (!databaseButton || !infoPanel || !closeButton) {
-        console.warn("NASA panel HTML elements are missing.");
-        return;
-    }
+    const container = document.createElement('div');
 
-    // Create resource list inside the existing panel
-    let resourceContainer = document.getElementById("nasaResources");
+    container.id = 'nasa-resources';
 
-    if (!resourceContainer) {
-        resourceContainer = document.createElement("div");
-        resourceContainer.id = "nasaResources";
-        infoPanel.appendChild(resourceContainer);
-    }
+    container.innerHTML = `
+        <h3>NASA SPACE RESOURCES</h3>
+        <ul>
+            ${nasaResources.map(resource => `
+                <li>
+                    <a href="${resource.url}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        ${resource.title}
+                    </a>
+                    <p>${resource.description}</p>
+                </li>
+            `).join('')}
+        </ul>
+    `;
 
-    function renderResources(unlocked) {
-        resourceContainer.innerHTML = "";
+    container.style.position = 'absolute';
+    container.style.right = '15px';
+    container.style.top = '100px';
+    container.style.zIndex = '5';
+    container.style.padding = '15px';
+    container.style.background = 'rgba(0,0,20,0.85)';
+    container.style.color = 'white';
+    container.style.border = '1px solid #00ccff';
+    container.style.borderRadius = '10px';
+    container.style.maxWidth = '220px';
 
-        if (!unlocked) {
-            resourceContainer.textContent =
-                "Complete the Science Discovery mission to unlock NASA resources.";
-            return;
-        }
+    document.body.appendChild(container);
 
-        nasaResources.forEach(resource => {
-            const card = document.createElement("div");
-            card.style.margin = "12px 0";
-
-            const heading = document.createElement("h3");
-            heading.textContent = resource.title;
-
-            const description = document.createElement("p");
-            description.textContent = resource.description;
-
-            const link = document.createElement("a");
-            link.href = resource.url;
-            link.textContent = "Explore Resource";
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-
-            card.append(heading, description, link);
-            resourceContainer.appendChild(card);
-        });
-    }
-
-    let resourcesUnlocked = false;
-
-    renderResources(resourcesUnlocked);
-
-    databaseButton.addEventListener("click", () => {
-        infoPanel.style.display =
-            infoPanel.style.display === "block" ? "none" : "block";
-    });
-
-    closeButton.addEventListener("click", () => {
-        infoPanel.style.display = "none";
-    });
-
-    return {
-        unlock() {
-            resourcesUnlocked = true;
-            renderResources(resourcesUnlocked);
-        }
-    };
+    return container;
 }
