@@ -963,3 +963,23 @@ function updateMission() {
         if (kills >= 8) {
             currentMission = 3;
             messageUI.textContent = 'SATE
+
+// GAME START SYSTEM
+
+let gameStarted = false;
+
+function startGame() {
+    if (gameStarted) return;
+
+    gameStarted = true;
+
+    console.log("SPACE MISSION STARTED!");
+
+    const help = document.getElementById("help");
+
+    if (help) {
+        help.style.display = "block";
+    }
+}
+
+window.startGame = startGame;
